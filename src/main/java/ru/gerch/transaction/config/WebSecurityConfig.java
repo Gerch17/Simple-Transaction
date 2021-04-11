@@ -7,8 +7,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 
 import javax.sql.DataSource;
 
@@ -17,6 +18,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private DataSource dataSource;
+    @Autowired
+    public PasswordEncoder passwordEncoder;
+
+    @Bean
+    public PasswordEncoder getPasswordEncoder(){
+        return new BCryptPasswordEncoder(8);
+    }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -28,7 +36,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authoritiesByUsernameQuery(
                         "select user_name, user_role from users " +
                                 "where user_name=?" +
-                                "and is_blocked=false");
+                                "and is_blocked=false").passwordEncoder(passwordEncoder);
         auth.inMemoryAuthentication().withUser("user").password("user").roles("USER");
     }
 
@@ -41,13 +49,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/").permitAll()
                 .antMatchers("/logout").permitAll()
                 .and()
-                .formLogin()
-                .loginPage("/login")
-                .permitAll()
-                .and()
-                .logout()
-                .logoutSuccessUrl("/")
-                .permitAll();
+                .formLogin(form -> {
+                    try {
+                        form
+                                .loginPage("/login")
+                                .defaultSuccessUrl("/home")
+                                .failureUrl("/login?error=true")
+                        .loginPage("/login")
+                        .permitAll()
+                        .and()
+                        .logout()
+                        .logoutSuccessUrl("/")
+                        .permitAll();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
 
     }
 
@@ -57,10 +74,4 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .ignoring()
                 .antMatchers("/h2-console/**");
     }
-
-    @Bean
-    public PasswordEncoder encoder(){
-        return NoOpPasswordEncoder.getInstance();
-    }
-
 }

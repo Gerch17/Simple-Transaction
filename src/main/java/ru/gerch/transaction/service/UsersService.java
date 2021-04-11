@@ -2,6 +2,7 @@ package ru.gerch.transaction.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.gerch.transaction.config.WebSecurityConfig;
 import ru.gerch.transaction.entity.Users;
 import ru.gerch.transaction.repos.UsersRepository;
 
@@ -9,10 +10,14 @@ import ru.gerch.transaction.repos.UsersRepository;
 public class UsersService {
     @Autowired
     UsersRepository usersRepository;
+    @Autowired
+    WebSecurityConfig webSecurityConfig;
 
     public void makeTransaction(String user){
         Users users = usersRepository.findUsersByUserName(user);
-        users.setBalance(users.getBalance()-11);
+        if(!(users.getBalance() < 11)) {
+            users.setBalance(users.getBalance() - 11);
+        }
     }
 
     public void failure(String name){
@@ -32,11 +37,22 @@ public class UsersService {
         usersRepository.save(users);
     }
 
-    public String getPass(String name){
-        return usersRepository.findUsersByUserName(name).getPassword();
-    }
-
     public int getAttempts(String name){
         return usersRepository.findUsersByUserName(name).getAttempts();
+    }
+
+    public void create(){
+        Users users = new Users();
+
+            if(usersRepository.findUsersByUserName("qwe") == null)
+            users.setAttempts(0);
+            users.setIsBlocked(false);
+            users.setPassword(webSecurityConfig.passwordEncoder.encode("asd"));
+            users.setUserName("qwe");
+            users.setBalance(80);
+            users.setUser_role("ROLE_USER");
+            usersRepository.save(users);
+
+
     }
 }
