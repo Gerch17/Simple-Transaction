@@ -30,7 +30,7 @@ public class TransactionController {
     }
 
 
-    @GetMapping("/submitTransaction")
+    @GetMapping("/payment")
     public String submit(){
         usersService.makeTransaction(SecurityContextHolder.getContext().getAuthentication().getName());
         historyService.addToHistory(SecurityContextHolder.getContext().getAuthentication().getName());
