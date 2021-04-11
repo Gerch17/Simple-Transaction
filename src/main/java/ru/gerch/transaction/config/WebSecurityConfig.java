@@ -27,7 +27,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                                 "where user_name=?")
                 .authoritiesByUsernameQuery(
                         "select user_name, user_role from users " +
-                                "where user_name=?");
+                                "where user_name=?" +
+                                "and is_blocked=false");
         auth.inMemoryAuthentication().withUser("user").password("user").roles("USER");
     }
 

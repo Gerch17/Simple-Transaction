@@ -23,6 +23,28 @@ public class Users {
     @Column(name = "balance", nullable = false)
     private int balance;
 
+    @Column(name = "is_blocked", nullable = false)
+    private Boolean isBlocked;
+
+    @Column(name = "attempts", nullable = false)
+    private int attempts;
+
+    public int getAttempts() {
+        return attempts;
+    }
+
+    public void setAttempts(int attempts) {
+        this.attempts = attempts;
+    }
+
+    public Boolean getIsBlocked() {
+        return isBlocked;
+    }
+
+    public void setIsBlocked(Boolean isBlocked) {
+        this.isBlocked = isBlocked;
+    }
+
     public int getId() {
         return id;
     }
